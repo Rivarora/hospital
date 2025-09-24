@@ -1102,7 +1102,7 @@ const EnhancedHabitsTab = ({ userId }) => {
                 {[
                   { icon: Moon, label: 'Sleep', value: habit.sleep_hours, unit: 'h' },
                   { icon: Dumbbell, label: 'Exercise', value: habit.exercise_minutes, unit: 'min' },
-                  { icon: Steps, label: 'Steps', value: habit.steps_count, unit: '' },
+                  { icon: Footprints, label: 'Steps', value: habit.steps_count, unit: '' },
                   { icon: Droplets, label: 'Water', value: habit.water_glasses, unit: 'glasses' },
                   { icon: Apple, label: 'Fruits/Veg', value: habit.fruits_vegetables, unit: 'servings' },
                   { icon: Smile, label: 'Mood', value: habit.mood_rating, unit: '/5' }
