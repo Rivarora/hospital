@@ -191,6 +191,9 @@
       - working: true
         agent: "main"
         comment: "Comprehensive dashboard data endpoint with user stats, habits, records, and goals"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Dashboard API (GET /api/dashboard/{user_id}) working perfectly. Returning comprehensive data including user info, recent records (1), recent habits (1), health goals, token totals (150), and health scores. All data properly aggregated and formatted."
 
 ## frontend:
   - task: "Landing Page & Authentication"
