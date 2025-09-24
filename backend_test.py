@@ -5,7 +5,7 @@ from datetime import datetime
 import time
 
 class HealthSyncAPITester:
-    def __init__(self, base_url="https://medivault.preview.emergentagent.com"):
+    def __init__(self, base_url="https://app-improver-8.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.test_user_id = None
@@ -362,7 +362,7 @@ class HealthSyncAPITester:
 
 def main():
     print("🏥 HealthSync API Testing Suite")
-    print("Testing against: https://medivault.preview.emergentagent.com")
+    print("Testing against: https://app-improver-8.preview.emergentagent.com")
     print("=" * 60)
     
     tester = HealthSyncAPITester()
