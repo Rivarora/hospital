@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDropzone } from 'react-dropzone';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import axios from 'axios';
 import './App.css';
 
@@ -13,30 +15,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import { Progress } from './components/ui/progress';
 import { Badge } from './components/ui/badge';
 import { Textarea } from './components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
 import { toast } from 'sonner';
 import { Toaster } from './components/ui/sonner';
 
 // Icons from Lucide React
 import { 
-  Heart, 
-  Upload, 
-  Brain, 
-  FileText, 
-  Award, 
-  Activity,
-  Moon,
-  Droplets,
-  Dumbbell,
-  Smile,
-  Plus,
-  BarChart3,
-  Shield,
-  Zap,
-  Sparkles
+  Heart, Upload, Brain, FileText, Award, Activity, Moon, Droplets, Dumbbell, Smile,
+  Plus, BarChart3, Shield, Zap, Sparkles, TrendingUp, Target, Calendar, Clock,
+  Download, Share2, Star, Trash2, Eye, Apple, Scale, Gauge, Timer, Steps,
+  Utensils, Brain as Meditation, Stethoscope, AlertCircle, CheckCircle2,
+  FileUp, X, Settings, MoreVertical
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
+
+// Color schemes for charts
+const CHART_COLORS = ['#06b6d4', '#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'];
 
 // Main App Component
 function App() {
@@ -44,7 +40,6 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
 
   useEffect(() => {
-    // Check if user exists in localStorage
     const savedUser = localStorage.getItem('healthsync_user');
     if (savedUser) {
       setCurrentUser(JSON.parse(savedUser));
@@ -92,7 +87,7 @@ function App() {
   );
 }
 
-// Landing Page Component
+// Landing Page Component (keeping existing)
 const LandingPage = ({ onGetStarted }) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -102,7 +97,6 @@ const LandingPage = ({ onGetStarted }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white overflow-hidden">
-      {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -inset-10 opacity-50">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -111,14 +105,12 @@ const LandingPage = ({ onGetStarted }) => {
         </div>
       </div>
 
-      {/* Hero Section */}
       <motion.div 
         className="relative z-10 container mx-auto px-6 py-20"
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 50 }}
         transition={{ duration: 1, ease: "easeOut" }}
       >
-        {/* Navigation */}
         <nav className="flex justify-between items-center mb-20">
           <motion.div 
             className="flex items-center space-x-3"
@@ -147,7 +139,6 @@ const LandingPage = ({ onGetStarted }) => {
           </motion.div>
         </nav>
 
-        {/* Hero Content */}
         <div className="text-center mb-20">
           <motion.h1 
             className="text-6xl md:text-8xl font-bold mb-8 leading-tight"
@@ -200,7 +191,6 @@ const LandingPage = ({ onGetStarted }) => {
           </motion.div>
         </div>
 
-        {/* Features Grid */}
         <motion.div 
           className="grid md:grid-cols-3 gap-8 mb-20"
           initial={{ y: 50, opacity: 0 }}
@@ -227,7 +217,6 @@ const LandingPage = ({ onGetStarted }) => {
           />
         </motion.div>
 
-        {/* Hero Image */}
         <motion.div 
           className="relative mx-auto max-w-4xl"
           initial={{ y: 50, opacity: 0 }}
@@ -248,7 +237,6 @@ const LandingPage = ({ onGetStarted }) => {
   );
 };
 
-// Feature Card Component
 const FeatureCard = ({ icon: Icon, title, description, delay }) => (
   <motion.div
     initial={{ y: 50, opacity: 0 }}
@@ -269,7 +257,7 @@ const FeatureCard = ({ icon: Icon, title, description, delay }) => (
   </motion.div>
 );
 
-// Auth Modal Component
+// Auth Modal Component (keeping existing)
 const AuthModal = ({ onClose, onUserLogin }) => {
   const [isLogin, setIsLogin] = useState(false);
   const [formData, setFormData] = useState({
@@ -284,23 +272,12 @@ const AuthModal = ({ onClose, onUserLogin }) => {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        // For demo purposes, create a new user instead of actual login
-        const response = await axios.post(`${API}/users`, {
-          name: formData.name,
-          email: formData.email,
-          age: formData.age ? parseInt(formData.age) : null
-        });
-        onUserLogin(response.data);
-      } else {
-        // Create new user
-        const response = await axios.post(`${API}/users`, {
-          name: formData.name,
-          email: formData.email,
-          age: formData.age ? parseInt(formData.age) : null
-        });
-        onUserLogin(response.data);
-      }
+      const response = await axios.post(`${API}/users`, {
+        name: formData.name,
+        email: formData.email,
+        age: formData.age ? parseInt(formData.age) : null
+      });
+      onUserLogin(response.data);
     } catch (error) {
       console.error('Auth error:', error);
       toast.error('Authentication failed. Please try again.');
@@ -397,7 +374,7 @@ const AuthModal = ({ onClose, onUserLogin }) => {
   );
 };
 
-// Dashboard Component
+// Enhanced Dashboard Component
 const Dashboard = ({ user, onLogout }) => {
   const [dashboardData, setDashboardData] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
@@ -442,6 +419,10 @@ const Dashboard = ({ user, onLogout }) => {
               <Zap className="h-5 w-5 text-yellow-400" />
               <span className="font-semibold">{dashboardData?.user?.tokens || 0} Tokens</span>
             </div>
+            <div className="flex items-center space-x-2">
+              <Gauge className="h-5 w-5 text-green-400" />
+              <span className="font-semibold">{Math.round(dashboardData?.user?.health_score || 85)}% Health Score</span>
+            </div>
             <div className="flex items-center space-x-3">
               <span>Welcome, {user.name}!</span>
               <Button variant="outline" size="sm" onClick={onLogout} data-testid="logout-btn">
@@ -483,11 +464,11 @@ const Dashboard = ({ user, onLogout }) => {
           </TabsContent>
           
           <TabsContent value="habits">
-            <HabitsTab userId={user.id} />
+            <EnhancedHabitsTab userId={user.id} />
           </TabsContent>
           
           <TabsContent value="paperwork">
-            <PaperworkTab userId={user.id} />
+            <EnhancedPaperworkTab userId={user.id} />
           </TabsContent>
         </Tabs>
       </div>
@@ -495,97 +476,175 @@ const Dashboard = ({ user, onLogout }) => {
   );
 };
 
-// Overview Tab Component
+// Enhanced Overview Tab
 const OverviewTab = ({ dashboardData, userId }) => {
   if (!dashboardData) return <div>Loading...</div>;
 
+  const healthScore = dashboardData.user?.health_score || 85;
+  const habitStreak = dashboardData.habit_streak || 0;
+
   return (
     <div className="space-y-8" data-testid="overview-tab">
-      {/* Stats Cards */}
+      {/* Enhanced Stats Cards */}
       <div className="grid md:grid-cols-4 gap-6">
         <StatCard 
-          title="Total Records" 
+          title="Medical Records" 
           value={dashboardData.recent_records?.length || 0} 
           icon={FileText}
           gradient="from-blue-500 to-cyan-500"
-        />
-        <StatCard 
-          title="Tokens Earned" 
-          value={dashboardData.tokens_earned_total || 0} 
-          icon={Zap}
-          gradient="from-yellow-500 to-orange-500"
+          subtitle="documents uploaded"
         />
         <StatCard 
           title="Health Score" 
-          value="85%" 
-          icon={Heart}
+          value={`${Math.round(healthScore)}%`} 
+          icon={Gauge}
           gradient="from-green-500 to-emerald-500"
+          subtitle="overall wellness"
         />
         <StatCard 
-          title="Streak Days" 
-          value={dashboardData.recent_habits?.length || 0} 
-          icon={Award}
+          title="Token Balance" 
+          value={dashboardData.user?.tokens || 0} 
+          icon={Zap}
+          gradient="from-yellow-500 to-orange-500"
+          subtitle="earned rewards"
+        />
+        <StatCard 
+          title="Habit Streak" 
+          value={`${habitStreak} days`} 
+          icon={Target}
           gradient="from-purple-500 to-pink-500"
+          subtitle="consistency"
         />
       </div>
 
-      {/* Recent Activity */}
+      {/* Enhanced Activity Grid */}
       <div className="grid md:grid-cols-2 gap-8">
+        {/* Recent Medical Records */}
         <Card className="bg-white/10 backdrop-blur-md border-white/20">
           <CardHeader>
-            <CardTitle className="text-white flex items-center">
-              <Activity className="h-5 w-5 mr-2" />
-              Recent Medical Records
+            <CardTitle className="text-white flex items-center justify-between">
+              <div className="flex items-center">
+                <Activity className="h-5 w-5 mr-2" />
+                Recent Medical Records
+              </div>
+              <Badge className="bg-blue-500/20 text-blue-300">
+                {dashboardData.recent_records?.length || 0} files
+              </Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {dashboardData.recent_records?.slice(0, 3).map((record) => (
-                <div key={record.id} className="p-3 bg-white/5 rounded-lg">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-white font-medium">{record.filename}</p>
-                      <p className="text-slate-300 text-sm">{record.ai_summary?.substring(0, 100)}...</p>
-                    </div>
-                    <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-                      Analyzed
-                    </Badge>
+          <CardContent className="space-y-3">
+            {dashboardData.recent_records?.slice(0, 3).map((record) => (
+              <div key={record.id} className="p-3 bg-white/5 rounded-lg border border-white/10">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="text-white font-medium text-sm">{record.filename}</p>
+                    <p className="text-slate-400 text-xs">
+                      {new Date(record.upload_date).toLocaleDateString()}
+                    </p>
                   </div>
+                  <Badge className="bg-green-500/20 text-green-300 border-green-500/30 text-xs">
+                    <Brain className="h-3 w-3 mr-1" />
+                    AI Analyzed
+                  </Badge>
                 </div>
-              )) || <p className="text-slate-400">No records uploaded yet</p>}
-            </div>
+                <p className="text-slate-300 text-xs leading-relaxed">
+                  {record.ai_summary?.substring(0, 80)}...
+                </p>
+              </div>
+            )) || <p className="text-slate-400 text-center py-8">No medical records uploaded yet</p>}
           </CardContent>
         </Card>
 
+        {/* Health Insights & Goals */}
         <Card className="bg-white/10 backdrop-blur-md border-white/20">
           <CardHeader>
             <CardTitle className="text-white flex items-center">
               <Sparkles className="h-5 w-5 mr-2" />
-              Health Insights
+              Health Insights & Goals
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="p-4 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-lg border border-cyan-500/30">
-                <h4 className="text-cyan-300 font-medium mb-2">AI Recommendation</h4>
-                <p className="text-white text-sm">Based on your recent habits, consider increasing your daily water intake to 8+ glasses for optimal hydration.</p>
+          <CardContent className="space-y-4">
+            {/* Health Score Visualization */}
+            <div className="relative">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-slate-300">Overall Health Score</span>
+                <span className="text-lg font-bold text-white">{Math.round(healthScore)}%</span>
               </div>
-              <div className="p-4 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg border border-green-500/30">
-                <h4 className="text-green-300 font-medium mb-2">Achievement</h4>
-                <p className="text-white text-sm">Great job maintaining your exercise routine! You've earned bonus tokens this week.</p>
+              <Progress value={healthScore} className="h-3" />
+            </div>
+
+            {/* AI Recommendations */}
+            <div className="space-y-3">
+              <div className="p-3 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-lg border border-cyan-500/30">
+                <h4 className="text-cyan-300 font-medium mb-1 text-sm">AI Recommendation</h4>
+                <p className="text-white text-xs">
+                  Based on your recent activity, consider increasing daily water intake to boost your health score.
+                </p>
+              </div>
+              
+              <div className="p-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg border border-green-500/30">
+                <h4 className="text-green-300 font-medium mb-1 text-sm">Achievement Unlocked!</h4>
+                <p className="text-white text-xs">
+                  {habitStreak > 0 ? 
+                    `Great consistency! ${habitStreak}-day habit streak maintained.` : 
+                    'Start logging your daily habits to build a healthy routine.'
+                  }
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Recent Habits Trend */}
+      {dashboardData.recent_habits?.length > 0 && (
+        <Card className="bg-white/10 backdrop-blur-md border-white/20">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <TrendingUp className="h-5 w-5 mr-2" />
+              7-Day Habits Trend
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={dashboardData.recent_habits?.reverse()}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="rgba(255,255,255,0.7)"
+                  fontSize={12}
+                  tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                />
+                <YAxis stroke="rgba(255,255,255,0.7)" fontSize={12} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(0,0,0,0.8)', 
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px'
+                  }} 
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="tokens_earned" 
+                  stroke="#06b6d4" 
+                  strokeWidth={2}
+                  dot={{ fill: '#06b6d4', r: 4 }}
+                  name="Tokens Earned"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
 
-// Medical Records Tab Component
+// Enhanced Medical Records Tab with File Upload
 const MedicalRecordsTab = ({ userId }) => {
   const [records, setRecords] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
   useEffect(() => {
     fetchRecords();
@@ -600,113 +659,209 @@ const MedicalRecordsTab = ({ userId }) => {
     }
   };
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
+  const onDrop = useCallback(async (acceptedFiles) => {
+    const file = acceptedFiles[0];
     if (!file) return;
 
     setUploading(true);
     try {
-      // For demo purposes, we'll simulate file content
-      const content = `Medical Report: ${file.name}\nPatient data and medical information would be extracted here.`;
-      
-      await axios.post(`${API}/medical-records`, {
-        user_id: userId,
-        filename: file.name,
-        content: content
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('user_id', userId);
+
+      const response = await axios.post(`${API}/upload-medical-record`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
       
-      toast.success('Medical record uploaded and analyzed!');
+      toast.success('Medical record uploaded and analyzed successfully!');
       fetchRecords();
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('Failed to upload record');
+      toast.error('Failed to upload record. Please try again.');
     } finally {
       setUploading(false);
+    }
+  }, [userId]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'text/*': ['.txt', '.log'],
+      'application/json': ['.json'],
+      'application/pdf': ['.pdf'],
+      'image/*': ['.png', '.jpg', '.jpeg']
+    },
+    maxSize: 10 * 1024 * 1024 // 10MB
+  });
+
+  const deleteRecord = async (recordId) => {
+    try {
+      await axios.delete(`${API}/medical-records/${recordId}`);
+      toast.success('Record deleted successfully');
+      fetchRecords();
+    } catch (error) {
+      toast.error('Failed to delete record');
     }
   };
 
   return (
     <div className="space-y-6" data-testid="medical-records-tab">
-      {/* Upload Section */}
+      {/* Enhanced Upload Section */}
       <Card className="bg-white/10 backdrop-blur-md border-white/20">
         <CardHeader>
           <CardTitle className="text-white flex items-center">
-            <Upload className="h-5 w-5 mr-2" />
+            <FileUp className="h-5 w-5 mr-2" />
             Upload Medical Records
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="border-2 border-dashed border-white/30 rounded-lg p-8 text-center">
-            <Upload className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-            <p className="text-white mb-4">Drop your medical records here or click to browse</p>
-            <input
-              type="file"
-              onChange={handleFileUpload}
-              className="hidden"
-              id="file-upload"
-              accept=".pdf,.txt,.doc,.docx"
-              data-testid="file-upload-input"
-            />
+          <div 
+            {...getRootProps()} 
+            className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 cursor-pointer
+              ${isDragActive 
+                ? 'border-cyan-400 bg-cyan-400/10' 
+                : 'border-white/30 hover:border-cyan-400 hover:bg-white/5'
+              }`}
+          >
+            <input {...getInputProps()} data-testid="file-upload-input" />
+            <Upload className="h-16 w-16 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-white text-lg font-medium mb-2">
+              {isDragActive ? 'Drop your files here' : 'Drag & drop medical files'}
+            </h3>
+            <p className="text-slate-400 mb-4">
+              Supports PDF, TXT, JSON, and image files (max 10MB)
+            </p>
             <Button 
-              onClick={() => document.getElementById('file-upload').click()}
               disabled={uploading}
-              className="bg-gradient-to-r from-cyan-500 to-blue-500"
+              className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
               data-testid="upload-btn"
             >
-              {uploading ? 'Analyzing...' : 'Choose File'}
+              {uploading ? (
+                <>
+                  <Timer className="h-4 w-4 mr-2 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Choose Files
+                </>
+              )}
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Records List */}
+      {/* Records Grid */}
       <div className="grid gap-6">
         {records.map((record) => (
-          <Card key={record.id} className="bg-white/10 backdrop-blur-md border-white/20">
+          <Card key={record.id} className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/15 transition-all">
             <CardHeader>
               <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-white">{record.filename}</CardTitle>
-                  <p className="text-slate-400 text-sm">
-                    Uploaded: {new Date(record.upload_date).toLocaleDateString()}
-                  </p>
+                <div className="flex-1">
+                  <CardTitle className="text-white text-lg">{record.filename}</CardTitle>
+                  <div className="flex items-center space-x-4 mt-2">
+                    <p className="text-slate-400 text-sm">
+                      <Calendar className="h-3 w-3 inline mr-1" />
+                      {new Date(record.upload_date).toLocaleDateString()}
+                    </p>
+                    <Badge className="bg-blue-500/20 text-blue-300 text-xs">
+                      {record.file_type}
+                    </Badge>
+                    <Badge className="bg-green-500/20 text-green-300 text-xs">
+                      <Brain className="h-3 w-3 mr-1" />
+                      AI Analyzed
+                    </Badge>
+                  </div>
                 </div>
-                <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/30">
-                  <Brain className="h-3 w-3 mr-1" />
-                  AI Analyzed
-                </Badge>
+                <div className="flex space-x-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => setSelectedRecord(selectedRecord?.id === record.id ? null : record)}
+                    data-testid="view-record-btn"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => deleteRecord(record.id)}
+                    className="text-red-400 hover:text-red-300"
+                    data-testid="delete-record-btn"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h4 className="text-cyan-300 font-medium mb-2">AI Summary</h4>
-                <p className="text-white text-sm bg-white/5 p-3 rounded">{record.ai_summary}</p>
-              </div>
-              <div>
-                <h4 className="text-yellow-300 font-medium mb-2">Risk Assessment</h4>
-                <p className="text-white text-sm bg-white/5 p-3 rounded">{record.risk_assessment}</p>
-              </div>
-            </CardContent>
+            
+            {selectedRecord?.id === record.id && (
+              <CardContent className="border-t border-white/10 pt-6">
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-cyan-300 font-medium mb-2 flex items-center">
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      AI Summary
+                    </h4>
+                    <p className="text-white text-sm bg-white/5 p-4 rounded-lg border border-white/10">
+                      {record.ai_summary}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-yellow-300 font-medium mb-2 flex items-center">
+                      <AlertCircle className="h-4 w-4 mr-2" />
+                      Risk Assessment
+                    </h4>
+                    <p className="text-white text-sm bg-white/5 p-4 rounded-lg border border-white/10">
+                      {record.risk_assessment}
+                    </p>
+                  </div>
+                  {record.health_metrics && Object.keys(record.health_metrics).length > 1 && (
+                    <div>
+                      <h4 className="text-green-300 font-medium mb-2 flex items-center">
+                        <BarChart3 className="h-4 w-4 mr-2" />
+                        Health Metrics
+                      </h4>
+                      <div className="bg-white/5 p-4 rounded-lg border border-white/10">
+                        <pre className="text-white text-sm">
+                          {JSON.stringify(record.health_metrics, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            )}
           </Card>
         ))}
+        
+        {records.length === 0 && (
+          <div className="text-center py-12">
+            <FileText className="h-16 w-16 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-white text-lg font-medium mb-2">No Medical Records Yet</h3>
+            <p className="text-slate-400">Upload your first medical document to get started with AI analysis</p>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-// Habits Tab Component
-const HabitsTab = ({ userId }) => {
+// Enhanced Habits Tab with Comprehensive Tracking
+const EnhancedHabitsTab = ({ userId }) => {
   const [habits, setHabits] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
   const [todayHabit, setTodayHabit] = useState({
-    sleep_hours: '',
-    exercise_minutes: '',
-    water_glasses: '',
-    mood_rating: '',
-    notes: ''
+    sleep_hours: '', exercise_minutes: '', steps_count: '', water_glasses: '',
+    fruits_vegetables: '', calories_consumed: '', mood_rating: '', stress_level: '',
+    meditation_minutes: '', weight: '', blood_pressure_systolic: '', 
+    blood_pressure_diastolic: '', heart_rate: '', notes: ''
   });
 
   useEffect(() => {
     fetchHabits();
+    fetchAnalytics();
   }, [userId]);
 
   const fetchHabits = async () => {
@@ -718,35 +873,143 @@ const HabitsTab = ({ userId }) => {
     }
   };
 
+  const fetchAnalytics = async () => {
+    try {
+      const response = await axios.get(`${API}/habits/${userId}/analytics`);
+      setAnalytics(response.data);
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API}/habits`, {
-        user_id: userId,
-        ...todayHabit,
-        sleep_hours: todayHabit.sleep_hours ? parseFloat(todayHabit.sleep_hours) : null,
-        exercise_minutes: todayHabit.exercise_minutes ? parseInt(todayHabit.exercise_minutes) : null,
-        water_glasses: todayHabit.water_glasses ? parseInt(todayHabit.water_glasses) : null,
-        mood_rating: todayHabit.mood_rating ? parseInt(todayHabit.mood_rating) : null,
-      });
+      const processedData = { user_id: userId };
       
-      toast.success('Habits logged! Tokens awarded for healthy choices.');
+      // Convert string inputs to appropriate types
+      Object.entries(todayHabit).forEach(([key, value]) => {
+        if (value !== '' && value !== null && value !== undefined) {
+          if (['sleep_hours', 'weight'].includes(key)) {
+            processedData[key] = parseFloat(value);
+          } else if (['exercise_minutes', 'steps_count', 'water_glasses', 'fruits_vegetables', 
+                     'calories_consumed', 'mood_rating', 'stress_level', 'meditation_minutes',
+                     'blood_pressure_systolic', 'blood_pressure_diastolic', 'heart_rate'].includes(key)) {
+            processedData[key] = parseInt(value);
+          } else {
+            processedData[key] = value;
+          }
+        }
+      });
+
+      await axios.post(`${API}/habits`, processedData);
+      
+      toast.success('Habits logged successfully! Tokens awarded for healthy choices.');
       setTodayHabit({
-        sleep_hours: '',
-        exercise_minutes: '',
-        water_glasses: '',
-        mood_rating: '',
-        notes: ''
+        sleep_hours: '', exercise_minutes: '', steps_count: '', water_glasses: '',
+        fruits_vegetables: '', calories_consumed: '', mood_rating: '', stress_level: '',
+        meditation_minutes: '', weight: '', blood_pressure_systolic: '', 
+        blood_pressure_diastolic: '', heart_rate: '', notes: ''
       });
       fetchHabits();
+      fetchAnalytics();
     } catch (error) {
       console.error('Error logging habits:', error);
       toast.error('Failed to log habits. You might have already logged today.');
     }
   };
 
+  const habitCategories = [
+    {
+      title: 'Physical Health',
+      fields: [
+        { key: 'sleep_hours', label: 'Sleep Hours', icon: Moon, placeholder: '7.5', type: 'number', step: '0.5' },
+        { key: 'exercise_minutes', label: 'Exercise Minutes', icon: Dumbbell, placeholder: '30', type: 'number' },
+        { key: 'steps_count', label: 'Steps Count', icon: Steps, placeholder: '8000', type: 'number' },
+        { key: 'water_glasses', label: 'Water Glasses', icon: Droplets, placeholder: '8', type: 'number' }
+      ]
+    },
+    {
+      title: 'Nutrition',
+      fields: [
+        { key: 'fruits_vegetables', label: 'Fruits & Vegetables (servings)', icon: Apple, placeholder: '5', type: 'number' },
+        { key: 'calories_consumed', label: 'Calories Consumed', icon: Utensils, placeholder: '2000', type: 'number' }
+      ]
+    },
+    {
+      title: 'Mental Health',
+      fields: [
+        { key: 'mood_rating', label: 'Mood (1-5)', icon: Smile, placeholder: '4', type: 'number', min: '1', max: '5' },
+        { key: 'stress_level', label: 'Stress Level (1-5)', icon: AlertCircle, placeholder: '2', type: 'number', min: '1', max: '5' },
+        { key: 'meditation_minutes', label: 'Meditation Minutes', icon: Meditation, placeholder: '10', type: 'number' }
+      ]
+    },
+    {
+      title: 'Health Metrics',
+      fields: [
+        { key: 'weight', label: 'Weight (kg)', icon: Scale, placeholder: '70.5', type: 'number', step: '0.1' },
+        { key: 'blood_pressure_systolic', label: 'BP Systolic', icon: Stethoscope, placeholder: '120', type: 'number' },
+        { key: 'blood_pressure_diastolic', label: 'BP Diastolic', icon: Stethoscope, placeholder: '80', type: 'number' },
+        { key: 'heart_rate', label: 'Heart Rate (bpm)', icon: Heart, placeholder: '72', type: 'number' }
+      ]
+    }
+  ];
+
   return (
     <div className="space-y-6" data-testid="habits-tab">
+      {/* Analytics Dashboard */}
+      {analytics && (
+        <div className="grid md:grid-cols-4 gap-4 mb-6">
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-slate-400 text-sm">Days Logged</p>
+                  <p className="text-xl font-bold text-white">{analytics.total_days_logged}</p>
+                </div>
+                <Calendar className="h-8 w-8 text-cyan-400" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-slate-400 text-sm">Avg Sleep</p>
+                  <p className="text-xl font-bold text-white">{analytics.average_sleep?.toFixed(1) || 0}h</p>
+                </div>
+                <Moon className="h-8 w-8 text-purple-400" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-slate-400 text-sm">Avg Exercise</p>
+                  <p className="text-xl font-bold text-white">{Math.round(analytics.average_exercise || 0)}min</p>
+                </div>
+                <Dumbbell className="h-8 w-8 text-green-400" />
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white/10 backdrop-blur-md border-white/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-slate-400 text-sm">Total Tokens</p>
+                  <p className="text-xl font-bold text-white">{analytics.total_tokens_earned}</p>
+                </div>
+                <Zap className="h-8 w-8 text-yellow-400" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Log Today's Habits */}
       <Card className="bg-white/10 backdrop-blur-md border-white/20">
         <CardHeader>
@@ -756,86 +1019,53 @@ const HabitsTab = ({ userId }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="sleep" className="text-white flex items-center">
-                  <Moon className="h-4 w-4 mr-2" />
-                  Sleep Hours
-                </Label>
-                <Input
-                  id="sleep"
-                  type="number"
-                  step="0.5"
-                  value={todayHabit.sleep_hours}
-                  onChange={(e) => setTodayHabit({...todayHabit, sleep_hours: e.target.value})}
-                  placeholder="7.5"
-                  data-testid="sleep-input"
-                />
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {habitCategories.map((category) => (
+              <div key={category.title}>
+                <h3 className="text-cyan-300 font-medium mb-3 text-lg">{category.title}</h3>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {category.fields.map((field) => {
+                    const Icon = field.icon;
+                    return (
+                      <div key={field.key}>
+                        <Label htmlFor={field.key} className="text-white flex items-center text-sm">
+                          <Icon className="h-4 w-4 mr-2" />
+                          {field.label}
+                        </Label>
+                        <Input
+                          id={field.key}
+                          type={field.type}
+                          step={field.step}
+                          min={field.min}
+                          max={field.max}
+                          value={todayHabit[field.key]}
+                          onChange={(e) => setTodayHabit({...todayHabit, [field.key]: e.target.value})}
+                          placeholder={field.placeholder}
+                          className="mt-1"
+                          data-testid={`${field.key}-input`}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-              
-              <div>
-                <Label htmlFor="exercise" className="text-white flex items-center">
-                  <Dumbbell className="h-4 w-4 mr-2" />
-                  Exercise Minutes
-                </Label>
-                <Input
-                  id="exercise"
-                  type="number"
-                  value={todayHabit.exercise_minutes}
-                  onChange={(e) => setTodayHabit({...todayHabit, exercise_minutes: e.target.value})}
-                  placeholder="30"
-                  data-testid="exercise-input"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="water" className="text-white flex items-center">
-                  <Droplets className="h-4 w-4 mr-2" />
-                  Water Glasses
-                </Label>
-                <Input
-                  id="water"
-                  type="number"
-                  value={todayHabit.water_glasses}
-                  onChange={(e) => setTodayHabit({...todayHabit, water_glasses: e.target.value})}
-                  placeholder="8"
-                  data-testid="water-input"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="mood" className="text-white flex items-center">
-                  <Smile className="h-4 w-4 mr-2" />
-                  Mood (1-5)
-                </Label>
-                <Input
-                  id="mood"
-                  type="number"
-                  min="1"
-                  max="5"
-                  value={todayHabit.mood_rating}
-                  onChange={(e) => setTodayHabit({...todayHabit, mood_rating: e.target.value})}
-                  placeholder="4"
-                  data-testid="mood-input"
-                />
-              </div>
-            </div>
+            ))}
             
             <div>
-              <Label htmlFor="notes" className="text-white">Notes</Label>
+              <Label htmlFor="notes" className="text-white">Notes & Reflections</Label>
               <Textarea
                 id="notes"
                 value={todayHabit.notes}
                 onChange={(e) => setTodayHabit({...todayHabit, notes: e.target.value})}
-                placeholder="How are you feeling today?"
+                placeholder="How are you feeling today? Any additional notes..."
+                className="mt-1"
                 data-testid="notes-input"
               />
             </div>
             
             <Button 
               type="submit" 
-              className="w-full bg-gradient-to-r from-green-500 to-emerald-500"
+              className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
               data-testid="log-habits-btn"
             >
               <Award className="h-4 w-4 mr-2" />
@@ -845,53 +1075,100 @@ const HabitsTab = ({ userId }) => {
         </CardContent>
       </Card>
 
-      {/* Habits History */}
-      <div className="grid gap-4">
+      {/* Habits History with Enhanced Display */}
+      <div className="space-y-4">
+        <h3 className="text-white text-xl font-semibold mb-4">Recent Activity</h3>
         {habits.map((habit) => (
           <Card key={habit.id} className="bg-white/10 backdrop-blur-md border-white/20">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-white font-medium">{habit.date}</h3>
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-white font-medium text-lg">
+                    {new Date(habit.date).toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </h3>
+                  <p className="text-slate-400 text-sm">Health Score Impact: +{habit.health_score_impact?.toFixed(1) || 0}</p>
+                </div>
                 <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
                   +{habit.tokens_earned} tokens
                 </Badge>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div className="text-slate-300">
-                  <Moon className="h-4 w-4 inline mr-1" />
-                  Sleep: {habit.sleep_hours || 'N/A'}h
-                </div>
-                <div className="text-slate-300">
-                  <Dumbbell className="h-4 w-4 inline mr-1" />
-                  Exercise: {habit.exercise_minutes || 'N/A'}min
-                </div>
-                <div className="text-slate-300">
-                  <Droplets className="h-4 w-4 inline mr-1" />
-                  Water: {habit.water_glasses || 'N/A'} glasses
-                </div>
-                <div className="text-slate-300">
-                  <Smile className="h-4 w-4 inline mr-1" />
-                  Mood: {habit.mood_rating || 'N/A'}/5
-                </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-4">
+                {[
+                  { icon: Moon, label: 'Sleep', value: habit.sleep_hours, unit: 'h' },
+                  { icon: Dumbbell, label: 'Exercise', value: habit.exercise_minutes, unit: 'min' },
+                  { icon: Steps, label: 'Steps', value: habit.steps_count, unit: '' },
+                  { icon: Droplets, label: 'Water', value: habit.water_glasses, unit: 'glasses' },
+                  { icon: Apple, label: 'Fruits/Veg', value: habit.fruits_vegetables, unit: 'servings' },
+                  { icon: Smile, label: 'Mood', value: habit.mood_rating, unit: '/5' }
+                ].map((metric) => {
+                  const Icon = metric.icon;
+                  if (!metric.value) return null;
+                  
+                  return (
+                    <div key={metric.label} className="text-center p-3 bg-white/5 rounded-lg">
+                      <Icon className="h-5 w-5 text-slate-400 mx-auto mb-1" />
+                      <p className="text-xs text-slate-400">{metric.label}</p>
+                      <p className="text-sm font-medium text-white">
+                        {metric.value}{metric.unit}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
+              
               {habit.notes && (
-                <p className="text-slate-400 text-sm mt-2 italic">{habit.notes}</p>
+                <div className="mt-4 p-3 bg-white/5 rounded-lg border-l-4 border-cyan-500">
+                  <p className="text-slate-300 text-sm italic">"{habit.notes}"</p>
+                </div>
               )}
             </CardContent>
           </Card>
         ))}
+        
+        {habits.length === 0 && (
+          <div className="text-center py-12">
+            <Activity className="h-16 w-16 text-slate-400 mx-auto mb-4" />
+            <h3 className="text-white text-lg font-medium mb-2">No Habits Logged Yet</h3>
+            <p className="text-slate-400">Start tracking your daily habits to earn tokens and improve your health score</p>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-// Paperwork Tab Component
-const PaperworkTab = ({ userId }) => {
-  const [formType, setFormType] = useState('admission');
-  const [hospitalName, setHospitalName] = useState('');
-  const [doctorName, setDoctorName] = useState('');
+// Enhanced Smart Paperwork Tab
+const EnhancedPaperworkTab = ({ userId }) => {
+  const [templates, setTemplates] = useState([]);
+  const [formData, setFormData] = useState({
+    form_type: 'admission',
+    hospital_name: '',
+    doctor_name: '',
+    appointment_date: '',
+    medical_condition: '',
+    insurance_info: ''
+  });
   const [generating, setGenerating] = useState(false);
   const [generatedForm, setGeneratedForm] = useState(null);
+
+  useEffect(() => {
+    fetchTemplates();
+  }, [userId]);
+
+  const fetchTemplates = async () => {
+    try {
+      const response = await axios.get(`${API}/paperwork-templates/${userId}`);
+      setTemplates(response.data);
+    } catch (error) {
+      console.error('Error fetching templates:', error);
+    }
+  };
 
   const handleGenerate = async (e) => {
     e.preventDefault();
@@ -900,13 +1177,12 @@ const PaperworkTab = ({ userId }) => {
     try {
       const response = await axios.post(`${API}/paperwork`, {
         user_id: userId,
-        form_type: formType,
-        hospital_name: hospitalName,
-        doctor_name: doctorName
+        ...formData
       });
       
       setGeneratedForm(response.data);
       toast.success('Smart paperwork generated successfully!');
+      fetchTemplates();
     } catch (error) {
       console.error('Paperwork generation error:', error);
       toast.error('Failed to generate paperwork');
@@ -915,83 +1191,248 @@ const PaperworkTab = ({ userId }) => {
     }
   };
 
+  const toggleFavorite = async (templateId) => {
+    try {
+      await axios.post(`${API}/paperwork-templates/${templateId}/favorite`);
+      fetchTemplates();
+      toast.success('Template updated');
+    } catch (error) {
+      toast.error('Failed to update template');
+    }
+  };
+
+  const downloadForm = (content, filename) => {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const formTypes = [
+    { value: 'admission', label: 'Hospital Admission Form' },
+    { value: 'discharge', label: 'Discharge Summary' },
+    { value: 'referral', label: 'Doctor Referral Letter' },
+    { value: 'insurance', label: 'Insurance Claim Form' },
+    { value: 'consent', label: 'Medical Consent Form' },
+    { value: 'history', label: 'Medical History Form' }
+  ];
+
   return (
     <div className="space-y-6" data-testid="paperwork-tab">
-      <Card className="bg-white/10 backdrop-blur-md border-white/20">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center">
-            <Shield className="h-5 w-5 mr-2" />
-            Generate Smart Paperwork
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleGenerate} className="space-y-4">
-            <div>
-              <Label htmlFor="formType" className="text-white">Form Type</Label>
-              <select
-                id="formType"
-                value={formType}
-                onChange={(e) => setFormType(e.target.value)}
-                className="w-full p-2 rounded-md bg-white/10 border border-white/20 text-white"
-                data-testid="form-type-select"
-              >
-                <option value="admission">Hospital Admission</option>
-                <option value="discharge">Discharge Summary</option>
-                <option value="referral">Doctor Referral</option>
-              </select>
-            </div>
-            
-            <div>
-              <Label htmlFor="hospital" className="text-white">Hospital Name</Label>
-              <Input
-                id="hospital"
-                value={hospitalName}
-                onChange={(e) => setHospitalName(e.target.value)}
-                placeholder="City General Hospital"
-                required
-                data-testid="hospital-input"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="doctor" className="text-white">Doctor Name (Optional)</Label>
-              <Input
-                id="doctor"
-                value={doctorName}
-                onChange={(e) => setDoctorName(e.target.value)}
-                placeholder="Dr. Smith"
-                data-testid="doctor-input"
-              />
-            </div>
-            
-            <Button 
-              type="submit" 
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500"
-              disabled={generating}
-              data-testid="generate-paperwork-btn"
-            >
-              {generating ? 'Generating...' : 'Generate Smart Paperwork'}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Form Generation */}
+        <Card className="bg-white/10 backdrop-blur-md border-white/20">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center">
+              <Shield className="h-5 w-5 mr-2" />
+              Generate Smart Paperwork
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleGenerate} className="space-y-4">
+              <div>
+                <Label htmlFor="formType" className="text-white">Form Type</Label>
+                <Select 
+                  value={formData.form_type} 
+                  onValueChange={(value) => setFormData({...formData, form_type: value})}
+                >
+                  <SelectTrigger className="w-full mt-1" data-testid="form-type-select">
+                    <SelectValue placeholder="Select form type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {formTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="hospital" className="text-white">Hospital/Clinic Name</Label>
+                <Input
+                  id="hospital"
+                  value={formData.hospital_name}
+                  onChange={(e) => setFormData({...formData, hospital_name: e.target.value})}
+                  placeholder="City General Hospital"
+                  required
+                  className="mt-1"
+                  data-testid="hospital-input"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="doctor" className="text-white">Doctor Name</Label>
+                <Input
+                  id="doctor"
+                  value={formData.doctor_name}
+                  onChange={(e) => setFormData({...formData, doctor_name: e.target.value})}
+                  placeholder="Dr. Sarah Johnson"
+                  className="mt-1"
+                  data-testid="doctor-input"
+                />
+              </div>
 
+              <div>
+                <Label htmlFor="appointment" className="text-white">Appointment Date</Label>
+                <Input
+                  id="appointment"
+                  type="date"
+                  value={formData.appointment_date}
+                  onChange={(e) => setFormData({...formData, appointment_date: e.target.value})}
+                  className="mt-1"
+                  data-testid="appointment-input"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="condition" className="text-white">Medical Condition/Reason</Label>
+                <Input
+                  id="condition"
+                  value={formData.medical_condition}
+                  onChange={(e) => setFormData({...formData, medical_condition: e.target.value})}
+                  placeholder="General consultation, follow-up, etc."
+                  className="mt-1"
+                  data-testid="condition-input"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="insurance" className="text-white">Insurance Information</Label>
+                <Input
+                  id="insurance"
+                  value={formData.insurance_info}
+                  onChange={(e) => setFormData({...formData, insurance_info: e.target.value})}
+                  placeholder="Policy number, provider name"
+                  className="mt-1"
+                  data-testid="insurance-input"
+                />
+              </div>
+              
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                disabled={generating}
+                data-testid="generate-paperwork-btn"
+              >
+                {generating ? (
+                  <>
+                    <Timer className="h-4 w-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Generate Smart Form
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Template Library */}
+        <Card className="bg-white/10 backdrop-blur-md border-white/20">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center justify-between">
+              <div className="flex items-center">
+                <FileText className="h-5 w-5 mr-2" />
+                Template Library
+              </div>
+              <Badge className="bg-blue-500/20 text-blue-300">
+                {templates.length} templates
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {templates.map((template) => (
+                <div key={template.id} className="p-3 bg-white/5 rounded-lg border border-white/10">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex-1">
+                      <h4 className="text-white font-medium text-sm">{template.template_name}</h4>
+                      <p className="text-slate-400 text-xs">
+                        {template.form_type} • {new Date(template.created_date).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex space-x-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => toggleFavorite(template.id)}
+                        className={template.is_favorite ? 'text-yellow-400' : 'text-slate-400'}
+                      >
+                        <Star className={`h-3 w-3 ${template.is_favorite ? 'fill-current' : ''}`} />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => downloadForm(template.content, template.template_name)}
+                      >
+                        <Download className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {templates.length === 0 && (
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-slate-400 mx-auto mb-3" />
+                  <p className="text-slate-400 text-sm">No templates yet</p>
+                  <p className="text-slate-500 text-xs">Generate your first form to create a template</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Generated Form Display */}
       {generatedForm && (
         <Card className="bg-white/10 backdrop-blur-md border-white/20">
           <CardHeader>
-            <CardTitle className="text-white">Generated {generatedForm.form_type} Form</CardTitle>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-white">
+                Generated {generatedForm.form_type.charAt(0).toUpperCase() + generatedForm.form_type.slice(1)} Form
+              </CardTitle>
+              <div className="flex space-x-2">
+                <Button 
+                  onClick={() => downloadForm(generatedForm.content, `${generatedForm.form_type}_form`)}
+                  className="bg-green-500 hover:bg-green-600"
+                  data-testid="download-btn"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+                <Button 
+                  className="bg-blue-500 hover:bg-blue-600"
+                  data-testid="share-btn"
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="bg-white/5 p-4 rounded-lg">
-              <pre className="text-white text-sm whitespace-pre-wrap">{generatedForm.content}</pre>
+            <div className="bg-white text-black p-6 rounded-lg max-h-96 overflow-y-auto">
+              <pre className="whitespace-pre-wrap text-sm leading-relaxed font-mono">
+                {generatedForm.content}
+              </pre>
             </div>
-            <div className="mt-4 flex gap-3">
-              <Button className="bg-green-500 hover:bg-green-600" data-testid="share-btn">
-                Share with Hospital
-              </Button>
-              <Button variant="outline" data-testid="download-btn">
-                Download PDF
-              </Button>
+            <div className="mt-4 p-3 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
+              <p className="text-cyan-300 text-sm">
+                <CheckCircle2 className="h-4 w-4 inline mr-2" />
+                Form generated successfully and saved to your template library. 
+                You can download, share, or use this as a template for future forms.
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -1000,16 +1441,17 @@ const PaperworkTab = ({ userId }) => {
   );
 };
 
-// Stat Card Component
-const StatCard = ({ title, value, icon: Icon, gradient }) => (
-  <Card className="bg-white/10 backdrop-blur-md border-white/20 overflow-hidden">
+// Enhanced Stat Card Component
+const StatCard = ({ title, value, icon: Icon, gradient, subtitle }) => (
+  <Card className="bg-white/10 backdrop-blur-md border-white/20 overflow-hidden hover:bg-white/15 transition-all">
     <CardContent className="p-6">
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-slate-400 text-sm">{title}</p>
-          <p className="text-2xl font-bold text-white">{value}</p>
+        <div className="flex-1">
+          <p className="text-slate-400 text-sm mb-1">{title}</p>
+          <p className="text-2xl font-bold text-white mb-1">{value}</p>
+          {subtitle && <p className="text-slate-500 text-xs">{subtitle}</p>}
         </div>
-        <div className={`p-3 rounded-full bg-gradient-to-r ${gradient}`}>
+        <div className={`p-3 rounded-full bg-gradient-to-r ${gradient} flex-shrink-0`}>
           <Icon className="h-6 w-6 text-white" />
         </div>
       </div>
