@@ -1,84 +1,84 @@
 {
   "summary": {
     "total_tests": 12,
-    "passed_tests": 12,
-    "failed_tests": 0,
-    "success_rate": 100.0,
-    "test_user_id": "eb559911-9d2b-4da7-a613-a678b225cac8"
+    "passed_tests": 11,
+    "failed_tests": 1,
+    "success_rate": 91.66666666666666,
+    "test_user_id": "42378cbf-a552-40eb-b7c3-517f5d789a82"
   },
   "detailed_results": [
     {
       "test": "Health Check",
       "success": true,
       "details": "",
-      "timestamp": "2025-09-24T12:30:00.046815"
+      "timestamp": "2025-09-24T13:29:01.201173"
     },
     {
       "test": "Root Endpoint",
       "success": true,
       "details": "",
-      "timestamp": "2025-09-24T12:30:00.087279"
+      "timestamp": "2025-09-24T13:29:01.275278"
     },
     {
       "test": "Create User",
       "success": true,
       "details": "",
-      "timestamp": "2025-09-24T12:30:00.137789"
+      "timestamp": "2025-09-24T13:29:02.231659"
     },
     {
       "test": "Get User",
       "success": true,
       "details": "",
-      "timestamp": "2025-09-24T12:30:00.195640"
+      "timestamp": "2025-09-24T13:29:02.274490"
     },
     {
       "test": "Get All Users",
-      "success": true,
-      "details": "",
-      "timestamp": "2025-09-24T12:30:00.234299"
+      "success": false,
+      "details": "Expected 200, got 405 - {'detail': 'Method Not Allowed'}",
+      "timestamp": "2025-09-24T13:29:02.315503"
     },
     {
       "test": "Upload Medical Record",
       "success": true,
       "details": "",
-      "timestamp": "2025-09-24T12:30:05.282234"
+      "timestamp": "2025-09-24T13:29:09.354380"
     },
     {
       "test": "Get Medical Records",
       "success": true,
       "details": "",
-      "timestamp": "2025-09-24T12:30:07.345812"
+      "timestamp": "2025-09-24T13:29:11.410817"
     },
     {
       "test": "Log Habits",
       "success": true,
       "details": "",
-      "timestamp": "2025-09-24T12:30:07.411370"
+      "timestamp": "2025-09-24T13:29:11.471574"
     },
     {
       "test": "Get Habits",
       "success": true,
       "details": "",
-      "timestamp": "2025-09-24T12:30:07.484584"
+      "timestamp": "2025-09-24T13:29:11.552070"
     },
     {
       "test": "Generate Paperwork",
       "success": true,
       "details": "",
-      "timestamp": "2025-09-24T12:30:15.580178"
+      "timestamp": "2025-09-24T13:29:22.445023"
     },
     {
       "test": "Get Tokens",
       "success": true,
       "details": "",
-      "timestamp": "2025-09-24T12:30:15.639862"
+      "timestamp": "2025-09-24T13:29:22.503722"
     },
     {
       "test": "Get Dashboard",
       "success": true,
       "details": "",
-      "timestamp": "2025-09-24T12:30:15.681631"
+      "timestamp": "2025-09-24T13:29:22.540553"
     }
   ],
-  "timestamp": "2025-09-24T12:30:15.682622"
+  "timestamp": "2025-09-24T13:29:22.541351"
 }
