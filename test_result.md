@@ -116,6 +116,9 @@
       - working: true
         agent: "main"
         comment: "User creation/retrieval endpoints with health scores and token system implemented"
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: User creation (POST /api/users) and user retrieval (GET /api/users/{id}) working perfectly. Created test user successfully with proper UUID generation, health score initialization (85.0), and token system setup."
 
   - task: "Medical Records Upload & AI Analysis"
     implemented: true
