@@ -1,34 +1,370 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+body {
+  font-family: 'Inter', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+.App {
+  width: 100%;
+  min-height: 100vh;
 }
 
-.App-link {
-    color: #61dafb;
+/* Custom animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Glassmorphism effects */
+.glassmorphism {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color, opacity, transform, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Button hover effects */
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+/* Card hover effects */
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* File upload drag and drop */
+.file-upload-area {
+  border: 2px dashed #cbd5e0;
+  transition: all 0.3s ease;
+}
+
+.file-upload-area:hover {
+  border-color: #4299e1;
+  background-color: rgba(66, 153, 225, 0.1);
+}
+
+.file-upload-area.drag-over {
+  border-color: #3182ce;
+  background-color: rgba(49, 130, 206, 0.2);
+}
+
+/* Progress bars */
+.progress-bar {
+  background: linear-gradient(90deg, #4299e1 0%, #3182ce 100%);
+  height: 8px;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+/* Responsive design helpers */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .grid-mobile-1 {
+    grid-template-columns: 1fr;
+  }
+  
+  .text-mobile-lg {
+    font-size: 2rem;
+  }
+  
+  .text-mobile-xl {
+    font-size: 2.5rem;
+  }
+}
+
+/* Focus states for accessibility */
+input:focus,
+textarea:focus,
+button:focus,
+select:focus {
+  outline: 2px solid #4299e1;
+  outline-offset: 2px;
+}
+
+/* Toast notification styles */
+.toast-success {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.toast-error {
+  background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+}
+
+/* Tab animations */
+.tab-content-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.tab-content-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.tab-content-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.tab-content-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Health metrics colors */
+.health-excellent {
+  color: #48bb78;
+}
+
+.health-good {
+  color: #38a169;
+}
+
+.health-fair {
+  color: #ed8936;
+}
+
+.health-poor {
+  color: #f56565;
+}
+
+/* Token animation */
+@keyframes tokenEarn {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.token-earn {
+  animation: tokenEarn 0.5s ease-in-out;
+}
+
+/* Chart styling */
+.recharts-cartesian-axis-tick-value {
+  fill: rgba(255, 255, 255, 0.7);
+}
+
+.recharts-legend-item-text {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Medical record status indicators */
+.status-analyzed {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.status-pending {
+  background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+}
+
+.status-error {
+  background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+}
+
+/* Custom badge styles */
+.badge-glow {
+  box-shadow: 0 0 20px rgba(66, 153, 225, 0.4);
+}
+
+/* Habit tracking visual indicators */
+.habit-excellent {
+  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.habit-good {
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+}
+
+.habit-needs-improvement {
+  background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+}
+
+/* Paperwork form styling */
+.generated-form {
+  font-family: 'Courier New', monospace;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* Risk assessment colors */
+.risk-low {
+  color: #48bb78;
+  background: rgba(72, 187, 120, 0.1);
+  border-left: 4px solid #48bb78;
+}
+
+.risk-medium {
+  color: #ed8936;
+  background: rgba(237, 137, 54, 0.1);
+  border-left: 4px solid #ed8936;
+}
+
+.risk-high {
+  color: #f56565;
+  background: rgba(245, 101, 101, 0.1);
+  border-left: 4px solid #f56565;
+}
+
+/* AI insights styling */
+.ai-insight {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-insight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Dashboard grid improvements */
+.dashboard-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Micro-interactions */
+.micro-bounce {
+  transition: transform 0.2s ease;
+}
+
+.micro-bounce:hover {
+  transform: scale(1.05);
+}
+
+.micro-bounce:active {
+  transform: scale(0.95);
+}
+
+/* Health score circle */
+.health-score-circle {
+  background: conic-gradient(from 0deg, #48bb78 0%, #4299e1 50%, #ed8936 85%, #f56565 100%);
+  border-radius: 50%;
+  padding: 4px;
+}
+
+.health-score-inner {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
 }
