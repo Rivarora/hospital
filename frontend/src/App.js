@@ -23,7 +23,7 @@ import { Toaster } from './components/ui/sonner';
 import { 
   Heart, Upload, Brain, FileText, Award, Activity, Moon, Droplets, Dumbbell, Smile,
   Plus, BarChart3, Shield, Zap, Sparkles, TrendingUp, Target, Calendar, Clock,
-  Download, Share2, Star, Trash2, Eye, Apple, Scale, Gauge, Timer, Steps,
+  Download, Share2, Star, Trash2, Eye, Apple, Scale, Gauge, Timer, Footprints,
   Utensils, Brain as Meditation, Stethoscope, AlertCircle, CheckCircle2,
   FileUp, X, Settings, MoreVertical
 } from 'lucide-react';
