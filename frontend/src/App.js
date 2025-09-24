@@ -925,7 +925,7 @@ const EnhancedHabitsTab = ({ userId }) => {
       fields: [
         { key: 'sleep_hours', label: 'Sleep Hours', icon: Moon, placeholder: '7.5', type: 'number', step: '0.5' },
         { key: 'exercise_minutes', label: 'Exercise Minutes', icon: Dumbbell, placeholder: '30', type: 'number' },
-        { key: 'steps_count', label: 'Steps Count', icon: Steps, placeholder: '8000', type: 'number' },
+        { key: 'steps_count', label: 'Steps Count', icon: Footprints, placeholder: '8000', type: 'number' },
         { key: 'water_glasses', label: 'Water Glasses', icon: Droplets, placeholder: '8', type: 'number' }
       ]
     },
